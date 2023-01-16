@@ -1,0 +1,46 @@
+# Copyright (c) 2023 Amktiao, All rights reserved.
+# 1. rootdir: Disable Android 13 phantom processes init rc
+# 2. rootdir: Disable Android 12+13 SystemUI Blur feature
+# merge commit xiaomi_msm8998_common into paper_common
+
+# disable SystemUI blur style
+service disableblur /system/bin/sh -c "settings put global disable_window_blurs 1"
+    user root
+    oneshot
+    disabled
+    seclabel u:r:shell:s0
+
+# enabled SystemUI blur style
+service enabledblur /system/bin/sh -c "settings put global disable_window_blurs 0"
+    user root
+    oneshot
+    disabled
+    seclabel u:r:shell:s0
+
+# disable phantom processes
+service disapp /system/bin/sh -c "settings put global settings_enable_monitor_phantom_procs false"
+    user root
+    oneshot
+    disabled
+    seclabel u:r:shell:s0
+
+# reset phantom processes
+service enapp /system/bin/sh -c "settings put global settings_enable_monitor_phantom_procs true"
+    user root
+    oneshot
+    disabled
+    seclabel u:r:shell:s0
+
+# zhaoyuenan add: drop debug code release user version
+#on property:ro.paper.bootandroidt.debug=true
+#    start disapp
+#
+#    mount debugfs debugfs /sys/kernel/debug
+#    chmod 0755 /sys/kernel/debug
+#
+#on property:ro.paper.bootandroidt.debug=false
+#    start enapp
+#
+#on property:sys.boot_completed=1
+#    start disableblur
+# zhaoyuenan end: drop debug code release user version

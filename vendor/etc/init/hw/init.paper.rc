@@ -1,0 +1,42 @@
+# Copyright (c) 2023 Amktiao, All rights reserved.
+# paper kernel init rootdir rc Data: 2023-01-07 file.
+
+on property:ro.paper_kernel_support=1
+    # 禁用全部已挂载ext4卷的屏障特性 dm-<x>, loop<x>, sda/e<x>
+    write /proc/sys/fs/ext4_needs_barrier 0
+
+    # disable adaptive lmk
+    write /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk 0
+
+#zhaoyuenan add: 清理selinux
+## zhaoyuenan add: debug start EDIT
+#on property:sys.boot_completed=1 && property:ro.paper.readversion.type=user
+#    # default selinux Enforcing mode
+#    write /sys/fs/selinux/enforce 1
+#
+#on property:sys.boot_completed=1 && property:ro.paper.readversion.type=debug
+#    # disable default selinux Enforcing mode
+#    write /sys/fs/selinux/enforce 0
+## zhaoyuenan end: debug start EDIT
+#zhaoyuenan end: 清理selinux
+
+on property:sys.boot_completed=1
+    # default selinux Enforcing mode
+    write /sys/fs/selinux/enforce 1
+
+    # set runtime stune value
+    write /dev/stune/schedtune.prefer_idle 0
+    write /dev/stune/schedtune.boost 0
+
+    # default enable dt2w sagit and chiron device
+    write /proc/touchpanel/double_tap_enable 1
+
+    # limit discard size to 128MB in order to avoid long IO latency
+    write /sys/block/sda/queue/discard_max_bytes 134217728
+
+    # Disable UFS sda/sde Disk I/O status
+    write /sys/block/sda/queue/iostats 0
+    write /sys/block/sde/queue/iostats 0
+
+    # stop android stat lf cpu for Android 12+
+    stop statsd
